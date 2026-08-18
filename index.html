@@ -410,7 +410,7 @@ tr:hover td{background:var(--s3)}
 .spinner{width:48px;height:48px;border:4px solid var(--bd);border-top:4px solid var(--gr);border-radius:50%;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:700px){.grade-crit{grid-template-columns:1fr}}
-user-select: none
+
 </style>
 </head>
 <body>
@@ -4793,9 +4793,9 @@ function scoreLeafDoc(text){
 
   // ── 排版格式规范（10分）──
   const hasSections=/第[一二三四五六七八九十\d]+章|^\d+\.\d+|[\s\S]+(设计|计算|校核|验算)/m.test(text);
-  const hasFigs=/图[\d]+|Fig\.?\s*\d+/.test(text);
-  const hasTabs=/表[\d]+|Table\s*\d+/.test(text);
-  const hasFormulas=/式[\(（][\d]+[\)）]|公式[\d]+|Eq\.?\s*\d+/.test(text);
+  const hasFigs=/图\s*\d[\d\s\-.]*\d|图\s*\d+|Fig\.?\s*\d+/.test(text);
+  const hasTabs=/表\s*\d[\d\s\-.]*\d|表\s*\d+|Table\s*\d+/.test(text);
+  const hasFormulas=/[公]?式\s*[\(（]\s*\d[\d\s\-.]*\s*[\)）]|[\(（]\s*\d+\s*[-－–]\s*\d+\s*[\)）]|公式\s*[\d]|Eq\.?\s*\d+/.test(text);
   const hasUnits=/N\/mm²|MPa|mm|kN|N·m/.test(text);
   const fmtScore=Math.round((hasSections?2:0)+(hasFigs?2:0)+(hasTabs?2:0)+(hasFormulas?2:0)+(hasUnits?2:0));
 
@@ -4930,28 +4930,16 @@ function generateLeafReviewFile(){
     if(b.dataset.m==='review'){  /* 用户主动点按钮 */ }
   },{capture:true}));
 })();
+
+// ── 禁止查看源代码（右键菜单、开发者工具快捷键）──
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
-if (e.key === 'F12' || 
-(e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-(e.ctrlKey && e.key === 'U') ||
-(e.ctrlKey && e.key === 'S')) {
-e.preventDefault();
-return false;
-}
+  if (e.key === 'F12') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) { e.preventDefault(); return; }
+  if (e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); return; }
 });
 </script>
-<script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if (e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-        (e.ctrlKey && e.key === 'U') ||
-        (e.ctrlKey && e.key === 'S')) {
-      e.preventDefault();
-      return false;
-    }
-  });
-</script>
+
 </body>
 </html>
